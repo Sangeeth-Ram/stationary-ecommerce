@@ -1,10 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { pinoHttp } from 'pino-http';
 import { StatusCodes } from 'http-status-codes';
 import { rateLimit } from 'express-rate-limit';
-import { logger } from './lib/logger.js';
+import { logger, httpLogger } from './lib/logger.js';
 import { errorHandler } from './middlewares/error.js';
 import { auth } from './middlewares/auth.js';
 import { requireRole } from './middlewares/rbac.js';
@@ -28,7 +27,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Request logging
-app.use(pinoHttp({ logger }));
+app.use(httpLogger);
 
 // CORS configuration
 app.use(

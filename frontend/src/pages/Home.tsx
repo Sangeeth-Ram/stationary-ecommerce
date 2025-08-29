@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { QUERY_KEYS } from '@/lib/react-query';
 
-export const Home = () => {
+export default function Home() {
   return (
     <div className="bg-white">
       {/* Hero Section */}

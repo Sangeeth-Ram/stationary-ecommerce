@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { QUERY_KEYS } from '@/lib/react-query';
-import { formatDate } from '@/lib/utils';
 import { Search, Loader2, User, Mail, Phone, Calendar } from 'lucide-react';
+import type { FC } from 'react';
+
 
 interface Customer {
   id: string;
@@ -19,12 +20,13 @@ interface Customer {
   createdAt: string;
 }
 
-export const Customers = () => {
+export const Customers: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   // Fetch customers
   const { data: customers = [], isLoading } = useQuery<Customer[]>({
-    queryKey: [QUERY_KEYS.ADMIN_CUSTOMERS],
+    queryKey: [QUERY_KEYS.ADMIN_USERS],
     queryFn: async () => {
       // const { data } = await api.getAdminCustomers();
       // return data;
@@ -141,7 +143,11 @@ export const Customers = () => {
                     <div className="font-medium">{customer.ordersCount}</div>
                     {customer.lastOrderDate && (
                       <div className="text-sm text-muted-foreground">
-                        Last: {formatDate(customer.lastOrderDate, 'MMM d, yyyy')}
+                        <span>{customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      }) : 'N/A'}</span>
                       </div>
                     )}
                   </TableCell>
@@ -156,17 +162,21 @@ export const Customers = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatDate(customer.createdAt, 'MMM d, yyyy')}</span>
+                      <span>{new Date(customer.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      as={Link}
-                      to={`/admin/customers/${customer.id}`}
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => navigate(`/admin/customers/${customer.id}`)}
                     >
-                      View
+                      <User className="h-4 w-4" />
+                      <span className="sr-only">View</span>
                     </Button>
                   </TableCell>
                 </TableRow>

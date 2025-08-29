@@ -1,14 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
-import { formatCurrency } from '../../lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { formatCurrency } from '@/lib/utils';
 import { Loader2, Package, ShoppingCart, Users, DollarSign } from 'lucide-react';
+import type { FC } from 'react';
 
 // Define query keys
 const QUERY_KEYS = {
   ADMIN_STATS: 'admin-stats',
 } as const;
 
-const Dashboard = () => {
+const Dashboard: FC = () => {
   // In a real app, you would fetch these stats from your API
   const { data: stats, isLoading } = useQuery({
     queryKey: [QUERY_KEYS.ADMIN_STATS],

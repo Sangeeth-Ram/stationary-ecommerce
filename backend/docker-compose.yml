@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  # Node.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stationary-app
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/stationary_ecommerce?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
+
   # PostgreSQL database
   db:
     image: postgres:14-alpine
@@ -28,29 +48,5 @@ services:
     depends_on:
       - db
 
-  # Redis for caching and rate limiting
-  redis:
-    image: redis:7-alpine
-    container_name: stationary-redis
-    ports:
-      - '6379:6379'
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # MailHog for local email testing
-  mailhog:
-    image: mailhog/mailhog:latest
-    container_name: stationary-mailhog
-    ports:
-      - '1025:1025' # SMTP server
-      - '8025:8025' # Web UI
-
 volumes:
   postgres_data:
-  redis_data:

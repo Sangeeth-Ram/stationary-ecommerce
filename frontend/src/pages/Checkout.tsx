@@ -28,7 +28,7 @@ const checkoutSchema = z.object({
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
-export const Checkout = () => {
+const Checkout = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { items, totalPrice, clearCart } = useCart();

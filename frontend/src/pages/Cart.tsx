@@ -3,7 +3,7 @@ import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/Button';
 import { formatCurrency } from '@/lib/utils';
 
-export const Cart = () => {
+const Cart = () => {
   const { 
     items, 
     totalItems, 
@@ -185,3 +185,5 @@ export const Cart = () => {
     </div>
   );
 };
+
+export default Cart;

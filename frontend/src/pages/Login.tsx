@@ -16,7 +16,7 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export const Login = () => {
+const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,12 +110,17 @@ export const Login = () => {
           </div>
         </div>
 
-        <div>
-          <Button type="submit" className="w-full" loading={isLoading}>
+        <div className="mt-4">
+          <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded" isLoading={isLoading}>
             Sign in
           </Button>
+          <div className="mt-4 p-4 bg-green-100 text-green-800 rounded">
+            If you can see this, Tailwind is working!
+          </div>
         </div>
       </form>
     </AuthLayout>
   );
 };
+
+export default Login;

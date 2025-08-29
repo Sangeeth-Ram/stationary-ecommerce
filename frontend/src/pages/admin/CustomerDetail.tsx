@@ -1,9 +1,20 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { QUERY_KEYS } from '@/lib/react-query';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { Loader2, User, Mail, Phone, Calendar, ShoppingCart, DollarSign, MapPin } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+import { Loader2, User, Mail, Phone, Calendar, ShoppingCart, DollarSign, MapPin, ArrowLeft } from 'lucide-react';
+import type { FC } from 'react';
+
+// Helper function to format dates
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -43,12 +54,17 @@ interface Customer {
   recentOrders: Order[];
 }
 
-export const CustomerDetail = () => {
-  const { id } = useParams<{ id: string }>();
+export const CustomerDetail: FC = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  
+  if (!id) {
+    throw new Error('Customer ID is required');
+  }
 
   // Fetch customer details
   const { data: customer, isLoading } = useQuery<Customer>({
-    queryKey: [QUERY_KEYS.ADMIN_CUSTOMER, id],
+    queryKey: [QUERY_KEYS.ADMIN_USERS, id],
     queryFn: async () => {
       // const { data } = await api.getCustomer(id!);
       // return data;
@@ -119,10 +135,20 @@ export const CustomerDetail = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !customer) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
+      <div className="container mx-auto py-8 px-4">
+        <Button
+          variant="ghost"
+          className="mb-6"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Customers
+        </Button>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
       </div>
     );
   }
@@ -164,7 +190,7 @@ export const CustomerDetail = () => {
                             Order #{order.orderNumber}
                           </h3>
                           <p className="text-sm text-muted-foreground">
-                            {formatDate(order.orderDate, 'MMM d, yyyy h:mm a')}
+                            {formatDate(order.orderDate)}
                           </p>
                         </div>
                         <div className="mt-2 sm:mt-0">
@@ -197,7 +223,15 @@ export const CustomerDetail = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8">
+                <div className="container mx-auto py-8 px-4">
+                  <Button
+                    variant="ghost"
+                    className="mb-6"
+                    onClick={() => navigate(-1)}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Customers
+                  </Button>
                   <ShoppingCart className="mx-auto h-12 w-12 text-muted-foreground" />
                   <h3 className="mt-2 text-sm font-medium">No orders yet</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -253,7 +287,11 @@ export const CustomerDetail = () => {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">
-                    Member since {formatDate(customer.createdAt, 'MMM d, yyyy')}
+                    Member since {new Date(customer.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                   </span>
                 </div>
               </div>
@@ -324,7 +362,11 @@ export const CustomerDetail = () => {
                   <span className="text-sm">First Order</span>
                 </div>
                 <span className="text-sm text-muted-foreground">
-                  {formatDate(customer.firstOrderDate, 'MMM d, yyyy')}
+                  {new Date(customer.firstOrderDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
                 </span>
               </div>
               
@@ -335,12 +377,43 @@ export const CustomerDetail = () => {
                     <span className="text-sm">Last Order</span>
                   </div>
                   <span className="text-sm text-muted-foreground">
-                    {formatDate(customer.lastOrderDate, 'MMM d, yyyy')}
+                    {new Date(customer.lastOrderDate).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                   </span>
                 </div>
               )}
             </CardContent>
           </Card>
+        </div>
+
+        <div className="space-y-6">
+          {customer.address && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Default Address</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 mt-0.5 text-muted-foreground flex-shrink-0" />
+                  <div className="space-y-1">
+                    <p className="font-medium">{customer.name}</p>
+                    <p className="text-sm">{customer.address.line1}</p>
+                    {customer.address.line2 && (
+                      <p className="text-sm">{customer.address.line2}</p>
+                    )}
+                    <p className="text-sm">
+                      {customer.address.city}, {customer.address.state}{' '}
+                      {customer.address.postalCode}
+                    </p>
+                    <p className="text-sm">{customer.address.country}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

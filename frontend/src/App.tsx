@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
@@ -10,36 +10,42 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/routes/ProtectedRoute';
 import { AdminRoute } from './components/routes/AdminRoute';
 import { Loader2 } from 'lucide-react';
+import ErrorBoundary from './components/ErrorBoundary';
 
-// Helper function for lazy loading with default export
-const lazyLoadPage = (path: string, basePath = '') =>
-  lazy(() => import(`./pages/${basePath}${path}`).then(module => ({
-    default: module.default || module[Object.keys(module)[0]]
-  })));
+// Helper function to handle both default and named exports
+const lazyLoad = (importer: () => Promise<any>) =>
+  lazy(async () => {
+    try {
+      const module = await importer();
+      // If the module has a default export, use it, otherwise use the module itself
+      return { default: module.default || module };
+    } catch (error) {
+      console.error('Error loading module:', error);
+      throw error;
+    }
+  });
 
 // Lazy load pages for better performance
-const Home = lazyLoadPage('Home');
-const ProductDetails = lazyLoadPage('ProductDetail');
-const Cart = lazyLoadPage('Cart');
-const Checkout = lazyLoadPage('Checkout');
-const Orders = lazyLoadPage('Orders');
-const Profile = lazyLoadPage('Profile');
-const Login = lazyLoadPage('Login');
-const Signup = lazyLoadPage('Signup');
-const NotFound = lazyLoadPage('NotFound');
-const Unauthorized = lazyLoadPage('Unauthorized');
+const Home = lazyLoad(() => import('./pages/Home'));
+const ProductDetails = lazyLoad(() => import('./pages/ProductDetail'));
+const Cart = lazyLoad(() => import('./pages/Cart'));
+const Checkout = lazyLoad(() => import('./pages/Checkout'));
+const Orders = lazy(() => import('./pages/Orders').then(m => ({ default: m.default })));
+const Profile = lazyLoad(() => import('./pages/Profile'));
+const Login = lazyLoad(() => import('./pages/Login'));
+const Signup = lazyLoad(() => import('./pages/Signup'));
+const NotFound = lazyLoad(() => import('./pages/NotFound'));
+const Unauthorized = lazyLoad(() => import('./pages/Unauthorized'));
 
 // Admin components
-const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
-
-// Admin pages
-const Dashboard = lazyLoadPage('Dashboard', 'admin/');
-const Products = lazyLoadPage('Products', 'admin/');
-const CreateProduct = lazyLoadPage('CreateProduct', 'admin/');
-const EditProduct = lazyLoadPage('EditProduct', 'admin/');
-const OrderDetail = lazyLoadPage('OrderDetail', 'admin/');
-const Customers = lazyLoadPage('Customers', 'admin/');
-const CustomerDetail = lazyLoadPage('CustomerDetail', 'admin/');
+const AdminLayout = lazyLoad(() => import('./layouts/AdminLayout'));
+const Dashboard = lazyLoad(() => import('./pages/admin/Dashboard'));
+const Products = lazyLoad(() => import('./pages/admin/Products'));
+const CreateProduct = lazyLoad(() => import('./pages/admin/CreateProduct'));
+const EditProduct = lazyLoad(() => import('./pages/admin/EditProduct'));
+const OrderDetail = lazyLoad(() => import('./pages/admin/OrderDetail'));
+const Customers = lazyLoad(() => import('./pages/admin/Customers'));
+const CustomerDetail = lazyLoad(() => import('./pages/admin/CustomerDetail'));
 
 // Loading component for Suspense fallback
 const LoadingSpinner = () => (
@@ -49,71 +55,74 @@ const LoadingSpinner = () => (
 );
 
 function App() {
+  // Test class to verify Tailwind is working
+  const testClass = 'bg-red-500 text-white p-4';
+  
   return (
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <BrowserRouter>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
             <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                
-                {/* Protected routes */}
-                <Route
-                  element={
-                    <ProtectedRoute>
-                      <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/products/:id" element={<ProductDetails />} />
-                        <Route path="/cart" element={<Cart />} />
-                        <Route path="/checkout" element={<Checkout />} />
-                        <Route path="/orders" element={<Orders />} />
-                        <Route path="/profile" element={<Profile />} />
-                      </Routes>
-                    </ProtectedRoute>
-                  }
-                >
-                  <Route index element={<Home />} />
-                  <Route path="products/:id" element={<ProductDetails />} />
-                  <Route path="cart" element={<Cart />} />
-                  <Route path="checkout" element={<Checkout />} />
-                  <Route path="orders" element={<Orders />} />
-                  <Route path="profile" element={<Profile />} />
-                </Route>
+              <ErrorBoundary>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/unauthorized" element={<Unauthorized />} />
+                  
+                  {/* Protected routes */}
+                  <Route element={
+                    <ErrorBoundary>
+                      <ProtectedRoute>
+                        <Outlet />
+                      </ProtectedRoute>
+                    </ErrorBoundary>
+                  }>
+                    <Route index element={<Home />} />
+                    <Route path="products/:id" element={<ProductDetails />} />
+                    <Route path="cart" element={<Cart />} />
+                    <Route path="checkout" element={<Checkout />} />
+                    <Route path="orders" element={<Orders />} />
+                    <Route path="profile" element={<Profile />} />
+                  </Route>
 
-                {/* Admin routes */}
-                <Route
-                  path="admin"
-                  element={
-                    <AdminRoute>
-                      <AdminLayout />
-                    </AdminRoute>
-                  }
-                >
-                  <Route index element={<Navigate to="dashboard" replace />} />
-                  <Route path="dashboard" element={<Dashboard />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="products/new" element={<CreateProduct />} />
-                  <Route path="products/:id/edit" element={<EditProduct />} />
-                  <Route path="orders" element={<div>Orders List</div>} />
-                  <Route path="orders/:id" element={<OrderDetail />} />
-                  <Route path="customers" element={<Customers />} />
-                  <Route path="customers/:id" element={<CustomerDetail />} />
-                </Route>
+                  {/* Admin routes */}
+                  <Route path="/admin" element={
+                    <ErrorBoundary>
+                      <AdminRoute>
+                        <AdminLayout />
+                      </AdminRoute>
+                    </ErrorBoundary>
+                  }>
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="products">
+                      <Route index element={<Products />} />
+                      <Route path="new" element={<CreateProduct />} />
+                      <Route path=":id/edit" element={<EditProduct />} />
+                    </Route>
+                    <Route path="orders">
+                      <Route index element={<div>Orders List</div>} />
+                      <Route path=":id" element={<OrderDetail />} />
+                    </Route>
+                    <Route path="customers">
+                      <Route index element={<Customers />} />
+                      <Route path=":id" element={<CustomerDetail />} />
+                    </Route>
+                  </Route>
 
-                {/* Error routes */}
-                <Route path="/unauthorized" element={<Unauthorized />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  {/* 404 route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </ErrorBoundary>
+              <Toaster position="top-right" />
+              <ReactQueryDevtools initialIsOpen={false} />
             </Suspense>
-            <ReactQueryDevtools initialIsOpen={false} />
-            <Toaster position="top-right" />
-          </BrowserRouter>
-        </AuthProvider>
-      </QueryClientProvider>
-    </Provider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </Provider>
+    </ErrorBoundary>
   );
 }
 

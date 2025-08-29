@@ -2,17 +2,17 @@ import { Navigate, useLocation, Outlet } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import { AdminLayout } from '../layouts/AdminLayout';
+import { AdminLayout } from '@/components/layouts/AdminLayout';
 
 interface AdminRouteProps {
   children?: ReactNode;
 }
 
 export const AdminRoute = ({ children }: AdminRouteProps) => {
-  const { user, loading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary-600" />

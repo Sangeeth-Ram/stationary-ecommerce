@@ -1,4 +1,5 @@
-import { ButtonHTMLAttributes, forwardRef, ElementType, ComponentPropsWithoutRef } from 'react';
+import { forwardRef } from 'react';
+import type { ElementType, ComponentPropsWithoutRef } from 'react';
 import { classNames } from '../../lib/utils';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
@@ -26,10 +27,11 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  xs: 'px-2.5 py-1.5 text-xs rounded',
-  sm: 'px-3 py-2 text-sm leading-4 rounded-md',
-  md: 'px-4 py-2 text-sm rounded-md',
-  lg: 'px-6 py-3 text-base rounded-md',
+  xs: 'px-2.5 py-1.5 text-xs',
+  sm: 'px-3 py-2 text-sm',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-6 py-3 text-base',
+  icon: 'p-2',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>((

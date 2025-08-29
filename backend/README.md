@@ -2,7 +2,20 @@
 
 A production-ready Node.js backend for a stationary e-commerce platform, designed to run on AWS Lambda with Express.js and Prisma ORM.
 
-## Features
+## 📋 Table of Contents
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Getting Started](#-getting-started)
+  - [Local Development](#local-development)
+  - [Environment Variables](#-environment-variables)
+- [Project Structure](#-project-structure)
+- [API Documentation](#-api-documentation)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Services Integration](#-services-integration)
+
+## ✨ Features
 
 - 🚀 Serverless architecture with AWS Lambda
 - 🔒 JWT-based authentication with Supabase
@@ -11,93 +24,264 @@ A production-ready Node.js backend for a stationary e-commerce platform, designe
 - 📦 Product and inventory management
 - 🛒 Shopping cart functionality
 - 💳 Order processing with Razorpay integration
-- 📦 Bulk import/export functionality
 - 📊 Health check endpoints
 - 📝 Request validation with Zod
-- 📈 Structured logging with Pino
 - 🔄 CORS support
 - ⚡ Rate limiting
 - 🛡️ Security best practices
 
-## Prerequisites
+## 🛠 Tech Stack
 
-- Node.js 18.x or later
-- PostgreSQL 14 or later
-- AWS Account (for deployment)
-- Supabase project (for authentication)
-- Razorpay account (for payments)
+- **Runtime**: Node.js 18+
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: JWT, Supabase
+- **Payments**: Razorpay
+- **Validation**: Zod
+- **Testing**: Jest, Supertest
+- **CI/CD**: GitHub Actions
+- **Infrastructure**: AWS Lambda, API Gateway
 
-## Getting Started
+## 🚀 Getting Started
 
-### 1. Clone the repository
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) (v20.10.0 or later)
+- [Docker Compose](https://docs.docker.com/compose/install/) (v2.0.0 or later)
+- [Node.js](https://nodejs.org/) (v18 or later)
+- [PostgreSQL](https://www.postgresql.org/download/) (v14 or later)
+- [AWS Account](https://aws.amazon.com/) (for deployment)
+- [Supabase](https://supabase.com/) project (for authentication)
+- [Razorpay](https://razorpay.com/) account (for payments)
+- npm package manager
+
+### Development with Docker (Recommended)
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/stationary-ecommerce.git
+   cd stationary-ecommerce/backend
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Update .env file with your configuration
+   ```
+
+3. **Start the application with Docker Compose**
+   ```bash
+   # Build and start all services in detached mode
+   docker-compose up --build -d
+   
+   # Run database migrations
+   docker-compose exec app npx prisma migrate dev --name init
+   
+   # Generate Prisma client
+   docker-compose exec app npx prisma generate
+   ```
+
+4. **Access the services**
+   - API: http://localhost:3000
+   - Adminer (Database GUI): http://localhost:8080
+     - System: PostgreSQL
+     - Server: db
+     - Username: postgres
+     - Password: postgres
+     - Database: stationary_ecommerce
+
+5. **View logs**
+   ```bash
+   # View logs for all services
+   docker-compose logs -f
+   
+   # View logs for a specific service
+   docker-compose logs -f app
+   ```
+
+6. **Run commands in the container**
+   ```bash
+   # Run npm commands
+   docker-compose exec app npm run test
+   
+   # Open a shell in the container
+   docker-compose exec app sh
+   ```
+
+7. **Stop the services**
+   ```bash
+   # Stop all services
+   docker-compose down
+   
+   # Stop and remove all containers, networks, and volumes
+   docker-compose down -v
+   ```
+
+### Local Development (Without Docker)
+
+1. **Clone the repository**
 
 ```bash
 git clone https://github.com/your-username/stationary-ecommerce.git
 cd stationary-ecommerce/backend
 ```
 
-### 2. Install dependencies
+### Install dependencies
 
+Using npm:
 ```bash
 npm install
 ```
 
-### 3. Set up environment variables
-
-Copy the example environment file and update the values:
-
+Or using yarn:
 ```bash
-cp .env.example .env
+yarn install
 ```
 
-Edit the `.env` file with your configuration.
+### Set up environment variables
 
-### 4. Set up the database
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Update the values in `.env` according to your setup.
 
-1. Create a PostgreSQL database
-2. Update the `DATABASE_URL` in `.env`
-3. Run migrations:
+### Database Setup
 
-```bash
-npx prisma migrate dev --name init
-```
+1. Ensure PostgreSQL is running
+2. Create a new database
+3. Update the `DATABASE_URL` in `.env`
+4. Run migrations:
+   ```bash
+   npx prisma migrate dev --name init
+   ```
+5. Generate Prisma Client:
+   ```bash
+   npx prisma generate
+   ```
 
-### 5. Generate Prisma Client
+## 💻 Local Development
 
-```bash
-npx prisma generate
-```
-
-## Development
-
-### Running locally
-
+Start the development server:
 ```bash
 npm run dev
+# or
+yarn dev
 ```
 
 The server will be available at `http://localhost:3000`
 
-### Environment Variables
+## 🔧 Environment Variables
 
-See `.env.example` for all available environment variables.
+Create a `.env` file in the root directory by copying the `.env.example` file and updating the values as needed. The main environment variables include:
 
-## API Documentation
+- Server configuration (NODE_ENV, PORT)
+- Database connection (DATABASE_URL)
+- JWT settings (JWT_SECRET, JWT_EXPIRES_IN)
+- Supabase credentials (SUPABASE_URL, SUPABASE_KEY)
+- Razorpay credentials (RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET)
 
-API documentation is available at `/api-docs` when running in development mode.
+# Razorpay
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
 
-## Testing
-
-```bash
-npm test
+# AWS (for production)
+AWS_ACCESS_KEY_ID=your_aws_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret
+AWS_REGION=your_aws_region
 ```
 
-## Deployment
+## 📁 Project Structure
 
-### 1. Build the application
+```
+backend/
+├── src/
+│   ├── controllers/    # Route controllers
+│   ├── middlewares/    # Express middlewares
+│   ├── models/         # Database models
+│   ├── routes/         # API routes
+│   ├── services/       # Business logic
+│   ├── utils/          # Helper functions
+│   ├── app.js          # Express app setup
+│   └── server.js       # Server entry point
+├── prisma/
+│   └── schema.prisma   # Database schema
+├── tests/              # Test files
+├── .env.example        # Environment variables example
+└── package.json        # Project dependencies
+```
 
+## 📚 API Documentation
+
+API documentation is available at `/api-docs` when running in development mode. The documentation is generated using Swagger/OpenAPI.
+
+To access the API documentation:
+1. Start the development server
+2. Visit `http://localhost:3000/api-docs`
+
+## 🧪 Testing
+
+Run tests:
 ```bash
-npm run build
+npm test
+# or
+yarn test
+```
+
+Run tests with coverage:
+```bash
+npm run test:coverage
+# or
+yarn test:coverage
+```
+
+## 🚀 Deployment
+
+### Prerequisites
+- AWS CLI configured with appropriate permissions
+- Serverless Framework installed globally
+
+### Deployment Steps
+
+1. Build the application:
+   ```bash
+   npm run build
+   # or
+   yarn build
+   ```
+
+2. Deploy to AWS Lambda:
+   ```bash
+   serverless deploy
+   ```
+
+3. The API Gateway URL will be displayed in the output after successful deployment.
+
+## 🔌 Services Integration
+
+### Supabase Authentication
+1. Create a new project in Supabase
+2. Enable Email/Password authentication
+3. Configure JWT settings
+4. Update the Supabase URL and key in `.env`
+
+### Razorpay Integration
+1. Create a Razorpay account
+2. Generate API keys
+3. Update the Razorpay keys in `.env`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 ```
 
 ### 2. Deploy to AWS Lambda

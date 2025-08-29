@@ -4,8 +4,9 @@ import { ProductForm } from '@/components/admin/ProductForm';
 import { QUERY_KEYS } from '@/lib/react-query';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
+import type { FC } from 'react';
 
-export const CreateProduct = () => {
+export const CreateProduct: FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 

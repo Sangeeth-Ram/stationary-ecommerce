@@ -36,7 +36,7 @@ const mockProduct = {
   updatedAt: '2023-01-15T10:00:00Z',
 };
 
-export const ProductDetail = () => {
+const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);

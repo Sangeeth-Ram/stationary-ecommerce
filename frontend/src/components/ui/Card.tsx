@@ -1,6 +1,6 @@
-import { cn } from '@/lib/utils';
+import { cn } from '../../lib/utils';
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {}
+type CardProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Card = ({ className, ...props }: CardProps) => {
   return (
@@ -14,7 +14,7 @@ export const Card = ({ className, ...props }: CardProps) => {
   );
 };
 
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {}
+type CardHeaderProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const CardHeader = ({ className, ...props }: CardHeaderProps) => {
   return (
@@ -25,7 +25,7 @@ export const CardHeader = ({ className, ...props }: CardHeaderProps) => {
   );
 };
 
-interface CardTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {}
+type CardTitleProps = React.HTMLAttributes<HTMLHeadingElement>;
 
 export const CardTitle = ({ className, ...props }: CardTitleProps) => {
   return (
@@ -39,13 +39,13 @@ export const CardTitle = ({ className, ...props }: CardTitleProps) => {
   );
 };
 
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+type CardContentProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const CardContent = ({ className, ...props }: CardContentProps) => {
   return <div className={cn('p-6 pt-0', className)} {...props} />;
 };
 
-interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {}
+type CardFooterProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const CardFooter = ({
   className,

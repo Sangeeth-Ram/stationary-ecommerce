@@ -3,10 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { QUERY_KEYS } from '@/lib/react-query';
-import { api } from '@/lib/api';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { toast } from 'sonner';
-import { Loader2, ArrowLeft, Truck, CheckCircle, XCircle, Package } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+import { Loader2, ArrowLeft, Truck, CheckCircle, Package } from 'lucide-react';
+import type { FC } from 'react';
+
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -52,14 +52,18 @@ interface Order {
   notes?: string;
 }
 
-export const OrderDetail = () => {
+export const OrderDetail: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  
+  if (!id) {
+    throw new Error('Order ID is required');
+  }
 
   // Fetch order details
   const { data: order, isLoading } = useQuery<Order>({
-    queryKey: [QUERY_KEYS.ADMIN_ORDER, id],
+    queryKey: [QUERY_KEYS.ADMIN_ORDERS, id],
     queryFn: async () => {
       // const { data } = await api.getOrder(id!);
       // return data;
@@ -119,13 +123,12 @@ export const OrderDetail = () => {
       // await api.updateOrderStatus(id!, status);
       return status;
     },
-    onSuccess: (status) => {
-      toast.success(`Order marked as ${status}`);
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMIN_ORDER, id] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMIN_ORDERS, id] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMIN_ORDERS] });
     },
     onError: (error: Error) => {
-      toast.error(`Failed to update order: ${error.message}`);
+      console.error(`Failed to update order: ${error.message}`);
     },
   });
 
@@ -361,7 +364,14 @@ export const OrderDetail = () => {
                   <div>
                     <p className="font-medium">Order Placed</p>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(order.orderDate, 'MMM d, yyyy h:mm a')}
+                      {new Date(order.orderDate).toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
                     </p>
                   </div>
                 </div>
@@ -377,7 +387,14 @@ export const OrderDetail = () => {
                     <div>
                       <p className="font-medium">Shipped</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(order.shippedDate, 'MMM d, yyyy h:mm a')}
+                        {new Date(order.shippedDate).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true
+                        })}
                       </p>
                       {order.trackingNumber && (
                         <p className="text-sm text-muted-foreground">
@@ -401,7 +418,7 @@ export const OrderDetail = () => {
                   </div>
                 )}
 
-                {order.deliveredDate ? (
+                {order.status === 'delivered' && order.deliveredDate && (
                   <div className="flex items-start gap-3">
                     <div className="flex flex-col items-center">
                       <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
@@ -411,34 +428,33 @@ export const OrderDetail = () => {
                     <div>
                       <p className="font-medium">Delivered</p>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(order.deliveredDate, 'MMM d, yyyy h:mm a')}
+                        {new Date(order.deliveredDate).toLocaleString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </p>
                     </div>
                   </div>
-                ) : order.status === 'cancelled' ? (
+                )}
+                {order.status === 'cancelled' && (
                   <div className="flex items-start gap-3">
                     <div className="flex flex-col items-center">
                       <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                        <XCircle className="h-4 w-4 text-red-600" />
-                      </div>
-                    </div>
-                    <div>
-                      <p className="font-medium text-red-600">Cancelled</p>
-                      <p className="text-sm text-muted-foreground">
-                        Order was cancelled
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-start gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center">
                         <CheckCircle className="h-4 w-4 text-gray-400" />
                       </div>
                     </div>
                     <div>
-                      <p className="font-medium text-muted-foreground">Delivered</p>
-                      <p className="text-sm text-muted-foreground">Pending</p>
+                      <p className="font-medium text-muted-foreground">Order Cancelled</p>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date().toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
                     </div>
                   </div>
                 )}

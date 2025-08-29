@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { ProductStatus } from '@prisma/client';
+import pkg from '@prisma/client';
+const { ProductStatus } = pkg;
 
 export const productListQuerySchema = z.object({
   query: z.string().optional(),

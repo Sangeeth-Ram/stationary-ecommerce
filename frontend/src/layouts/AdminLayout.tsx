@@ -1,11 +1,12 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LogOut, LayoutDashboard, Package, ShoppingCart, Users } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { useAuth } from '../contexts/AuthContext';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminLayout() {
   const { logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -13,6 +14,11 @@ export default function AdminLayout() {
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     { name: 'Customers', href: '/admin/customers', icon: Users },
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -51,19 +57,17 @@ export default function AdminLayout() {
             </nav>
           </div>
           <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-            <button
-              onClick={logout}
-              className="flex-shrink-0 w-full group block"
+            <button 
+              onClick={handleLogout}
+              className="mt-auto flex items-center p-4 hover:bg-gray-50 w-full"
             >
-              <div className="flex items-center">
-                <div className="flex items-center">
-                  <LogOut className="h-6 w-6 text-gray-400 group-hover:text-gray-500" />
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                    Sign out
-                  </p>
-                </div>
+              <div className="flex-shrink-0">
+                <LogOut className="h-6 w-6 text-gray-400" aria-hidden="true" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                  Sign out
+                </p>
               </div>
             </button>
           </div>
@@ -71,7 +75,7 @@ export default function AdminLayout() {
       </div>
 
       {/* Main content */}
-      <div className="md:pl-64 flex flex-col flex-1">
+      <div className="md:pl-64 flex flex-col">
         <main className="flex-1">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">

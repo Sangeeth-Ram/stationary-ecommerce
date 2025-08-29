@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/Table';
-import { QUERY_KEYS } from '../../lib/react-query';
-import { formatCurrency } from '../../lib/utils';
-import type { Product } from '../../types';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
+import { QUERY_KEYS } from '@/lib/react-query';
+import { formatCurrency } from '@/lib/utils';
+import type { Product } from '@/types';
 import { Loader2, Plus, Search, Edit, Trash2, Image as ImageIcon } from 'lucide-react';
+import type { FC } from 'react';
 
-const Products = () => {
+const Products: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Fetch products
   const { data: products = [], isLoading } = useQuery({
@@ -82,7 +84,10 @@ const Products = () => {
             Manage your store's products
           </p>
         </div>
-        <Button as={Link} to="/admin/products/new" className="w-full sm:w-auto">
+        <Button 
+          onClick={() => navigate('/admin/products/new')} 
+          className="w-full sm:w-auto"
+        >
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
@@ -138,11 +143,10 @@ const Products = () => {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <Button
-                        variant="outline"
+                      <Button 
+                        variant="outline" 
                         size="icon"
-                        as={Link}
-                        to={`/admin/products/${product.id}/edit`}
+                        onClick={() => navigate(`/admin/products/${product.id}/edit`)}
                       >
                         <Edit className="h-4 w-4" />
                         <span className="sr-only">Edit</span>

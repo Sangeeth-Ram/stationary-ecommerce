@@ -1,42 +1,26 @@
-import pino from 'pino';
-import pinoHttp from 'pino-http';
+// Simple console-based logger
+const logger = {
+  info: (message, ...args) => console.log(`[INFO] ${message}`, ...args),
+  error: (message, ...args) => console.error(`[ERROR] ${message}`, ...args),
+  warn: (message, ...args) => console.warn(`[WARN] ${message}`, ...args),
+  debug: (message, ...args) => console.debug(`[DEBUG] ${message}`, ...args),
+};
 
-const isProduction = process.env.NODE_ENV === 'production';
+// Simple HTTP logger middleware
+const httpLogger = (req, res, next) => {
+  // Skip health check endpoints
+  if (req.url === '/api/v1/health') {
+    return next();
+  }
 
-// Base logger configuration
-const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-  transport: {
-    target: isProduction ? 'pino/file' : 'pino-pretty',
-    options: {
-      colorize: !isProduction,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname',
-    },
-  },
-});
-
-// HTTP logger middleware
-const httpLogger = pinoHttp({
-  logger,
-  autoLogging: {
-    ignore: (req) => req.url === '/api/v1/health',
-  },
-  serializers: {
-    req: (req) => ({
-      method: req.method,
-      url: req.url,
-      query: req.query,
-      params: req.params,
-      headers: {
-        'user-agent': req.headers['user-agent'],
-        'x-request-id': req.headers['x-request-id'],
-      },
-    }),
-    res: (res) => ({
-      statusCode: res.statusCode,
-    }),
-  },
-});
+  const start = Date.now();
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.info(`${req.method} ${req.url} - ${res.statusCode} ${duration}ms`);
+  });
+  
+  next();
+};
 
 export { logger, httpLogger };

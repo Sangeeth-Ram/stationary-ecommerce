@@ -24,7 +24,7 @@ const signupSchema = z
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
-export const Signup = () => {
+const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
@@ -149,7 +149,7 @@ export const Signup = () => {
         </div>
 
         <div>
-          <Button type="submit" className="w-full" loading={isLoading}>
+          <Button type="submit" className="w-full" isLoading={isLoading}>
             Create account
           </Button>
         </div>
@@ -157,3 +157,5 @@ export const Signup = () => {
     </AuthLayout>
   );
 };
+
+export default Signup;

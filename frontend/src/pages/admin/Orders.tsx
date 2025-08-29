@@ -1,12 +1,22 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table';
 import { QUERY_KEYS } from '@/lib/react-query';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
+
+// Helper function to format dates
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
 import { Search, Loader2, Eye } from 'lucide-react';
+import type { FC } from 'react';
 
 type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 
@@ -30,8 +40,9 @@ interface Order {
   }>;
 }
 
-export const Orders = () => {
+export const Orders: FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
 
   // Fetch orders
@@ -197,11 +208,10 @@ export const Orders = () => {
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
+                    <Button 
+                      variant="outline" 
                       size="icon"
-                      as={Link}
-                      to={`/admin/orders/${order.id}`}
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
                     >
                       <Eye className="h-4 w-4" />
                       <span className="sr-only">View</span>

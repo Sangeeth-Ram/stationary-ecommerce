@@ -1,15 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { ShoppingCartIcon, UserCircleIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { useAppSelector } from '@/store/store';
-import { useAuth } from '@/contexts/AuthContext';
-import { classNames } from '@/lib/utils';
+import { ShoppingCartIcon, UserCircleIcon, Bars3Icon } from '@heroicons/react/24/outline';
+import { useAppSelector } from '../../store/store';
+import { useAuth } from '../../hooks/useAuth';
+import { classNames } from '../../lib/utils';
+import type { RootState } from '../../store/store';
 
 export const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
-  const cartItemCount = useAppSelector((state) => 
-    state.cart.items.reduce((total, item) => total + item.quantity, 0)
+  const cartItemCount = useAppSelector((state: RootState) => 
+    state.cart.items.reduce((total: number, item: { quantity: number }) => total + item.quantity, 0)
   );
   const navigate = useNavigate();
 

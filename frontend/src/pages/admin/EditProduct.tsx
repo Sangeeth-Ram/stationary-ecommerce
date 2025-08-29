@@ -5,15 +5,20 @@ import { QUERY_KEYS } from '@/lib/react-query';
 import { api } from '@/lib/api';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import type { FC } from 'react';
 
-export const EditProduct = () => {
-  const { id } = useParams<{ id: string }>();
+export const EditProduct: FC = () => {
+  const { id } = useParams();
+  
+  if (!id) {
+    throw new Error('Product ID is required');
+  }
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   // Fetch product data
   const { data: product, isLoading: isLoadingProduct } = useQuery({
-    queryKey: [QUERY_KEYS.ADMIN_PRODUCT, id],
+    queryKey: [QUERY_KEYS.ADMIN_PRODUCTS, id],
     queryFn: async () => {
       // In a real app, you would fetch the product from your API
       // const { data } = await api.getProduct(id!);
@@ -56,8 +61,8 @@ export const EditProduct = () => {
     },
     onSuccess: () => {
       toast.success('Product updated successfully');
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMIN_PRODUCTS, id] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMIN_PRODUCTS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMIN_PRODUCT, id] });
       navigate('/admin/products');
     },
     onError: (error: Error) => {
