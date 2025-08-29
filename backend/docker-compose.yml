@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  db:
+    image: postgres:14-alpine
+    container_name: stationary-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: stationary_ecommerce
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d stationary_ecommerce"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Adminer for database management
+  adminer:
+    image: adminer:latest
+    container_name: stationary-adminer
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+
+  # Redis for caching and rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: stationary-redis
+    ports:
+      - '6379:6379'
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MailHog for local email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: stationary-mailhog
+    ports:
+      - '1025:1025' # SMTP server
+      - '8025:8025' # Web UI
+
+volumes:
+  postgres_data:
+  redis_data:

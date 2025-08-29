@@ -1,0 +1,112 @@
+service: stationary-ecommerce-backend
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'ap-south-1'}
+  stage: ${opt:stage, 'dev'}
+  environment:
+    NODE_ENV: ${self:custom.stageVars.${self:provider.stage}.NODE_ENV, 'production'}
+    DATABASE_URL: ${ssm:/stationary-ecommerce/${self:provider.stage}/DATABASE_URL}
+    SUPABASE_JWKS_URL: ${ssm:/stationary-ecommerce/${self:provider.stage}/SUPABASE_JWKS_URL}
+    SUPABASE_AUD: ${ssm:/stationary-ecommerce/${self:provider.stage}/SUPABASE_AUD}
+    RAZORPAY_KEY_ID: ${ssm:/stationary-ecommerce/${self:provider.stage}/RAZORPAY_KEY_ID}
+    RAZORPAY_KEY_SECRET: ${ssm:/stationary-ecommerce/${self:provider.stage}/RAZORPAY_KEY_SECRET}
+    AWS_S3_BUCKET: ${ssm:/stationary-ecommerce/${self:provider.stage}/AWS_S3_BUCKET}
+    JWT_PUBLIC_KEYS_CACHE_TTL: ${ssm:/stationary-ecommerce/${self:provider.stage}/JWT_PUBLIC_KEYS_CACHE_TTL, '900000'}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:DeleteObject
+          Resource: "arn:aws:s3:::${self:provider.environment.AWS_S3_BUCKET}/*"
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: "arn:aws:ssm:${self:provider.region}:*:parameter/stationary-ecommerce/${self:provider.stage}/*"
+
+package:
+  patterns:
+    - '!./**'
+    - 'node_modules/**'
+    - 'prisma/**'
+    - 'src/**'
+    - 'package.json'
+    - 'package-lock.json'
+
+functions:
+  api:
+    handler: src/handler.handler
+    events:
+      - httpApi: '*'
+    timeout: 30
+    memorySize: 512
+    environment:
+      NODE_ENV: ${self:provider.environment.NODE_ENV}
+      DATABASE_URL: ${self:provider.environment.DATABASE_URL}
+      SUPABASE_JWKS_URL: ${self:provider.environment.SUPABASE_JWKS_URL}
+      SUPABASE_AUD: ${self:provider.environment.SUPABASE_AUD}
+      RAZORPAY_KEY_ID: ${self:provider.environment.RAZORPAY_KEY_ID}
+      RAZORPAY_KEY_SECRET: ${self:provider.environment.RAZORPAY_KEY_SECRET}
+      AWS_S3_BUCKET: ${self:provider.environment.AWS_S3_BUCKET}
+      JWT_PUBLIC_KEYS_CACHE_TTL: ${self:provider.environment.JWT_PUBLIC_KEYS_CACHE_TTL}
+    vpc:
+      securityGroupIds:
+        - !Ref LambdaSecurityGroup
+      subnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+custom:
+  stageVars:
+    dev:
+      NODE_ENV: development
+    staging:
+      NODE_ENV: staging
+    production:
+      NODE_ENV: production
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules: true
+    packager: 'npm'
+    packagerOptions:
+      scripts:
+        - prisma generate
+  prune:
+    automatic: true
+    number: 3
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+    noAuth: true
+    noTimeout: true
+
+plugins:
+  - serverless-webpack
+  - serverless-offline
+  - serverless-prune-plugin
+  - serverless-iam-roles-per-function
+
+resources:
+  Resources:
+    LambdaSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: Security group for Lambda functions
+        VpcId: !ImportValue ${self:provider.stage}-VPC-ID
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 5432
+            ToPort: 5432
+            CidrIp: 10.0.0.0/16
+    PrivateSubnet1:
+      Description: First private subnet
+      Value: !ImportValue ${self:provider.stage}-PrivateSubnet1
+    PrivateSubnet2:
+      Description: Second private subnet
+      Value: !ImportValue ${self:provider.stage}-PrivateSubnet2
