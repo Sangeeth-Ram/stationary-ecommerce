@@ -1,6 +1,17 @@
 # Use Node.js 18 Alpine as base image
 FROM node:18-alpine
 
+# Install required dependencies including OpenSSL
+RUN apk add --no-cache \
+    openssl \
+    openssl-dev \
+    python3 \
+    make \
+    g++ \
+    gcc \
+    libc6-compat \
+    && ln -s /lib/libc.musl-* /lib/libc.musl
+
 # Set working directory
 WORKDIR /app
 

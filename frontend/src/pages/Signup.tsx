@@ -44,10 +44,24 @@ const Signup = () => {
         firstName: data.firstName,
         lastName: data.lastName,
       });
-      toast.success('Account created successfully!');
-      navigate('/');
+      
+      // Show success message and redirect to login
+      toast.success('Account created successfully! Please check your email to confirm your account.');
+      navigate('/login');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create account');
+      console.error('Signup error:', error);
+      let errorMessage = 'Failed to create account';
+      
+      // Handle specific error messages
+      if (error.message.includes('User already registered')) {
+        errorMessage = 'An account with this email already exists';
+      } else if (error.message.includes('Password should be at least 6 characters')) {
+        errorMessage = 'Password must be at least 6 characters long';
+      } else if (error.message.includes('Invalid email')) {
+        errorMessage = 'Please enter a valid email address';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

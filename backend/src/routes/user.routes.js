@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { CartController } from '../controllers/user/cart.controller.js';
+import { UserController } from '../controllers/user.controller.js';
 import { auth } from '../middlewares/auth.js';
 
 const router = Router();
@@ -15,6 +16,7 @@ router.delete('/me/cart/items/:id', CartController.removeItem);
 
 // Orders routes will be added here
 
-// User profile routes will be added here
+// User profile routes
+router.get('/me', UserController.getProfile);
 
 export { router as userRoutes };

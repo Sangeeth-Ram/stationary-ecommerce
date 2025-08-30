@@ -114,9 +114,6 @@ const Login = () => {
           <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded" isLoading={isLoading}>
             Sign in
           </Button>
-          <div className="mt-4 p-4 bg-green-100 text-green-800 rounded">
-            If you can see this, Tailwind is working!
-          </div>
         </div>
       </form>
     </AuthLayout>
