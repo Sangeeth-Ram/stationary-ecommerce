@@ -10,6 +10,7 @@ import { requireRole } from './middlewares/rbac.js';
 import { healthRouter } from './routes/health.js';
 import { publicRoutes } from './routes/public.routes.js';
 import { userRoutes } from './routes/user.routes.js';
+import { authRoutes } from './routes/auth.routes.js';
 
 const app = express();
 
@@ -45,6 +46,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Public API routes
 app.use('/api/v1/health', healthRouter);
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1', publicRoutes);
 
 // Protected user routes (require authentication)

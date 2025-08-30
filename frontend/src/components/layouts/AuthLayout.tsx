@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Logo } from '@/components/ui/Logo';
 
@@ -10,12 +10,12 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <div className="flex flex-1 flex-col justify-center py-12 px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-        <div className="mx-auto w-full max-w-sm lg:w-96">
+    <div className="h-screen w-screen flex flex-col lg:flex-row">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-6 bg-gray-50">
+        <div className="w-full max-w-md space-y-8">
           <div className="text-center">
             <Link to="/" className="inline-block">
-              <Logo className="h-12 w-auto" />
+              <Logo className="h-12 w-auto mx-auto" />
             </Link>
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
               {title}
@@ -26,20 +26,10 @@ export const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
               </p>
             )}
           </div>
-
-          <div className="mt-8">
-            <div className="mt-6">
-              {children}
-            </div>
+          <div className="mt-8 bg-white py-8 px-6 shadow-lg rounded-lg sm:px-10">
+            {children}
           </div>
         </div>
-      </div>
-      <div className="relative hidden w-0 flex-1 lg:block">
-        <img
-          className="absolute inset-0 h-full w-full object-cover"
-          src="/images/auth-bg.jpg"
-          alt="Stationery items"
-        />
       </div>
     </div>
   );

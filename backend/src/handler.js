@@ -51,7 +51,8 @@ export const handler = serverless(app, {
 // Export the app for local development
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    logger.info(`Server running on http://localhost:${PORT}`);
+  const HOST = '0.0.0.0';
+  app.listen(PORT, HOST, () => {
+    logger.info(`Server running on http://${HOST}:${PORT}`);
   });
 }
