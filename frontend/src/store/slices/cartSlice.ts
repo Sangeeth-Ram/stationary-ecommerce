@@ -44,7 +44,7 @@ const cartSlice = createSlice({
         });
       }
     },
-    updateItemQuantity: (
+    updateQuantity: (
       state,
       action: PayloadAction<{ id: string; quantity: number }>
     ) => {
@@ -84,7 +84,7 @@ const cartSlice = createSlice({
 
 export const {
   addItem,
-  updateItemQuantity,
+  updateQuantity,
   removeItem,
   clearCart,
   syncCartStart,
