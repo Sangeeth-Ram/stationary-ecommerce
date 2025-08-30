@@ -1,0 +1,39 @@
+# Node.js
+node_modules/
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.sqlite
+prisma/migrations/*/README.md  # Optional: generated README files
+*.prisma-backup
+
+# TypeScript
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor-specific
+.vscode/
+.idea/
+
+# Optional: if using next.js or similar tools
+.next/
+out/
